@@ -2,41 +2,31 @@
 #define SERVO_DRIVER_H
 
 #include <stdint.h>
+#include "config.h"
 #include "kinematics.h"
-#include "Multiservo.h"
+#include "relaxable_servo.h"
 
-class RelaxableServo : public Multiservo {
-public:
-    RelaxableServo();
-    explicit RelaxableServo(uint8_t twiAddress);
+namespace ServoDriver {
+    class Driver {
+    public:
+        Driver();
 
-    Error attach(uint16_t pin);
-    Error attach(uint16_t pin, uint16_t minPulse, uint16_t maxPulse);
+        bool setLegAngles(uint8_t legIndex, const LegAngles &angles);
+        bool setLegPosition(uint8_t legIndex, float x, float y, float z);
+        bool setLegPlanar(uint8_t legIndex, float R, float y);
 
-    Error relax();
-    Error wake();
+        void setAllAngles(const float angles[12]);
 
-    Error write(int value);
+        void relax(uint8_t legIndex);
+        void relaxAll();
 
-    Error writeMicroseconds(int pulseWidth);
-private:
-    int m_savedPin = -1;
-};
+        void wake(uint8_t legIndex);
+        void wakeAll();
 
-void servoDriverInit();
-
-bool servoSetLegAngles(uint8_t legIndex, const LegAngles &angles);
-bool servoSetLegPosition(uint8_t legIndex, float x, float y, float z);
-bool servoSetLegPlanar(uint8_t legIndex, float R, float y);
-
-void servoSetAllAngles(const float angles[12]);
-
-void servoRelax(uint8_t legIndex);
-void servoRelaxAll();
-
-void servoWake(uint8_t legIndex);
-void servoWakeAll();
-
-void servoHome();
+        void home();
+    protected:
+        RelaxableServo servos[Servo::LEGS][Servo::DOF_PER_LEG]{};
+    };
+}
 
 #endif
