@@ -39,7 +39,7 @@ namespace Kinematics {
                     BETA_MAX  =  3.0f * 3.14159265f / 4.0f, // 3pi/4
                     PHI_MIN   = -3.14159265f / 3.0f,        // -pi/3
                     PHI_MAX   =  3.14159265f / 3.0f,        //  pi/3
-                    ANG_EPS   = 1e-4f;
+                    EPS       = 1e-4f;
 
     // Опорная точка стойки (мм)
     constexpr float HOME_R = 85.0f;
