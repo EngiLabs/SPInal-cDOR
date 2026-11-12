@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "config.h"
 #include "protocol.h"
 #include "servo_driver.h"
@@ -7,25 +6,31 @@
 #include "gait_controller.h"
 // #include "led_controller.h"
 
+#include <Arduino.h>
 
-static unsigned long lastGaitTick = 0;
+
+static unsigned long last_suboperation_tick = 0;
 static bool telemetryRequested = false;
+
+static ServoDriver::Driver servoDriver;
+static GaitController::GaitController gaitController;
 
 static void handleCommand(const Frame &frame) {
     switch (frame.commandID) {
         case Protocol::MOVE: {
             const auto direction = static_cast<int8_t>(frame.payload[0]);
             const uint8_t speed = frame.payload[1];
-            gaitSetDirection(direction, speed);
+            gaitController.setDirection(direction, speed);
             break;
         }
+
         default:
         case Protocol::STOP:
-            gaitStop();
+            gaitController.stop();
             break;
 
         case Protocol::SET_GAIT:
-            gaitSetType(frame.payload[0]);
+            gaitController.setType(frame.payload[0]);
             break;
 
         case Protocol::SET_POSE: {
@@ -34,7 +39,7 @@ static void handleCommand(const Frame &frame) {
                 angles[i] = static_cast<float>(
                     (frame.payload[i * 2] << 8) | frame.payload[i * 2 + 1]
                 ) / 100.0f;
-            servoSetAllAngles(angles);
+            servoDriver.setAllAngles(angles);
             break;
         }
 
@@ -54,17 +59,17 @@ static void handleCommand(const Frame &frame) {
         }*/
 
         case Protocol::HOME:
-            gaitStop();
-            servoHome();
+            gaitController.stop();
+            servoDriver.home();
             break;
 
         case Protocol::RELAX:
-            gaitStop();
-            servoRelaxAll();
+            gaitController.stop();
+            servoDriver.relaxAll();
             break;
 
         case Protocol::WAKE:
-            servoWakeAll();
+            servoDriver.wakeAll();
             break;
     }
 }
@@ -95,13 +100,11 @@ static void sendTelemetry() {
 
 void setup() {
     protocolInit();
-    servoDriverInit();
     imuInit();
     irSensorsInit();
-    gaitInit();
     // ledInit();
 
-    servoHome();
+    servoDriver.home();
 }
 
 
@@ -112,9 +115,9 @@ void loop() {
     if (protocolReceive(frame))
         handleCommand(frame);
 
-    if (now - lastGaitTick >= Timing::GAIT_TICK_MS) {
-        lastGaitTick = now;
-        gaitTick();
+    if (now - last_suboperation_tick >= Timing::SUBOPERATION_TICK) {
+        last_suboperation_tick = now;
+        gaitController.tick();
         // ledTick();
     }
 

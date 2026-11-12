@@ -31,7 +31,6 @@ namespace Kinematics {
     constexpr float L1 = 60.0f,   // длина бедра (мм)
                     L2 = 90.0f;   // длина голени (мм)
 
-    // Пределы из аналитического вывода
     constexpr float C_MIN     = -0.70710678f,               // -1/sqrt2
                     ALPHA_MIN = -3.14159265f / 2.0f,        // -pi/2
                     ALPHA_MAX =  3.14159265f / 2.0f,        //  pi/2
@@ -41,7 +40,7 @@ namespace Kinematics {
                     PHI_MAX   =  3.14159265f / 3.0f,        //  pi/3
                     EPS       = 1e-4f;
 
-    // Опорная точка стойки (мм)
+    // опорная точка стойки (мм)
     constexpr float HOME_R = 85.0f;
     constexpr float HOME_Y = -55.0f;
 }
@@ -113,8 +112,8 @@ namespace Imu {
 }
 
 namespace Timing {
-    constexpr uint16_t TELEMETRY_INTERVAL_MS = 100;
-    constexpr uint16_t GAIT_TICK_MS          = 20;
+    constexpr uint16_t TELEMETRY_INTERVAL_MS = 100,
+                       SUBOPERATION_TICK     = 20;
 }
 
 #endif
