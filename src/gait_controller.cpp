@@ -1,24 +1,17 @@
 #include "gait_controller.h"
 
-#include <math.h>
 #include "config.h"
-#include "servo_driver.h"
 #include "kinematics.h"
 
+#include <math.h>
 
-static int8_t currentDirection = 0;
-static uint8_t currentSpeed = 0;
-static bool active = false;
-static uint32_t tickCounter = 0;
 
-static float legPhaseOffsets[Servo::LEGS] = {0.0f, 0.5f, 0.75f, 0.25f};
-
-void gaitInit() {
+GaitController::GaitController::GaitController() {
     active = false;
     tickCounter = 0;
 }
 
-void gaitSetType(uint8_t gaitType) {
+void GaitController::GaitController::setType(uint8_t gaitType) {
     switch (static_cast<Gait::Type>(gaitType)) {
         case Gait::WALK:
             legPhaseOffsets[0] = 0.0f;
@@ -41,19 +34,19 @@ void gaitSetType(uint8_t gaitType) {
     }
 }
 
-void gaitSetDirection(const int8_t direction, const uint8_t speed) {
+void GaitController::GaitController::setDirection(const int8_t direction, const uint8_t speed) {
     currentDirection = direction;
     currentSpeed = speed;
     active = true;
 }
 
-void gaitStop() {
+void GaitController::GaitController::stop() {
     active = false;
     currentDirection = 0;
     currentSpeed = 0;
 }
 
-void gaitTick() {
+void GaitController::GaitController::tick() {
     if (!active) return;
 
     tickCounter++;
@@ -80,10 +73,10 @@ void gaitTick() {
 
         LegAngles angles{};
         if (inverseKinematics(foot, angles) == IkStatus::OK)
-            servoSetLegAngles(leg, angles);
+            servoDriver.setLegAngles(leg, angles);
     }
 }
 
-bool gaitIsActive() {
+bool GaitController::GaitController::isActive() const {
     return active;
 }
