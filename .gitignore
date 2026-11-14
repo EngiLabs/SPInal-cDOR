@@ -1,3 +1,5 @@
 /.idea
 /.pio
 /lib
+
+compile_commands.json
