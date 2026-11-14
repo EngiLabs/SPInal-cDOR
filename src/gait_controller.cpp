@@ -11,8 +11,8 @@ GaitController::GaitController::GaitController() {
     tickCounter = 0;
 }
 
-void GaitController::GaitController::setType(uint8_t gaitType) {
-    switch (static_cast<Gait::Type>(gaitType)) {
+void GaitController::GaitController::setType(uint8_t type) {
+    switch (static_cast<Gait::Type>(type)) {
         case Gait::WALK:
             legPhaseOffsets[Servos::LEG_LF] = 0.0f;
             legPhaseOffsets[Servos::LEG_RB] = 0.25f;
