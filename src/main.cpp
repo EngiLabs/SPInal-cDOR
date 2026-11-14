@@ -34,8 +34,8 @@ static void handleCommand(const Frame &frame) {
             break;
 
         case Protocol::SET_POSE: {
-            float angles[Servo::COUNT];
-            for (uint8_t i = 0; i < Servo::COUNT && i * 2 + 1 < frame.length; i++)
+            float angles[Servos::COUNT];
+            for (uint8_t i = 0; i < Servos::COUNT && i * 2 + 1 < frame.length; i++)
                 angles[i] = static_cast<float>(
                     (frame.payload[i * 2] << 8) | frame.payload[i * 2 + 1]
                 ) / 100.0f;
