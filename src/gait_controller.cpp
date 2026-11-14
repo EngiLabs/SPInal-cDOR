@@ -14,22 +14,22 @@ GaitController::GaitController::GaitController() {
 void GaitController::GaitController::setType(uint8_t gaitType) {
     switch (static_cast<Gait::Type>(gaitType)) {
         case Gait::WALK:
-            legPhaseOffsets[0] = 0.0f;
-            legPhaseOffsets[1] = 0.5f;
-            legPhaseOffsets[2] = 0.75f;
-            legPhaseOffsets[3] = 0.25f;
+            legPhaseOffsets[Servos::LEG_LF] = 0.0f;
+            legPhaseOffsets[Servos::LEG_RB] = 0.25f;
+            legPhaseOffsets[Servos::LEG_RF] = 0.5f;
+            legPhaseOffsets[Servos::LEG_LB] = 0.75f;
             break;
         case Gait::TROT:
-            legPhaseOffsets[0] = 0.0f;
-            legPhaseOffsets[1] = 0.5f;
-            legPhaseOffsets[2] = 0.5f;
-            legPhaseOffsets[3] = 0.0f;
+            legPhaseOffsets[Servos::LEG_LF] = 0.0f;
+            legPhaseOffsets[Servos::LEG_RB] = 0.0f;
+            legPhaseOffsets[Servos::LEG_RF] = 0.5f;
+            legPhaseOffsets[Servos::LEG_LB] = 0.5f;
             break;
         case Gait::CREEP:
-            legPhaseOffsets[0] = 0.0f;
-            legPhaseOffsets[1] = 0.25f;
-            legPhaseOffsets[2] = 0.5f;
-            legPhaseOffsets[3] = 0.75f;
+            legPhaseOffsets[Servos::LEG_LF] = 0.0f;
+            legPhaseOffsets[Servos::LEG_RF] = 0.25f;
+            legPhaseOffsets[Servos::LEG_LB] = 0.5f;
+            legPhaseOffsets[Servos::LEG_RB] = 0.75f;
             break;
     }
 }
@@ -53,7 +53,7 @@ void GaitController::GaitController::tick() {
     constexpr float cycleLength = 50.0f;
     const float phase = fmod(static_cast<float>(tickCounter) / cycleLength, 1.0f);
 
-    for (uint8_t leg = 0; leg < Servo::LEGS; leg++) {
+    for (uint8_t leg = 0; leg < Servos::LEGS; leg++) {
         const float legPhase = fmod(phase + legPhaseOffsets[leg], 1.0f);
 
         FootPosition foot{};

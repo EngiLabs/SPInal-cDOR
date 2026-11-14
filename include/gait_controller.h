@@ -25,7 +25,7 @@ namespace GaitController {
         bool active = false;
         uint32_t tickCounter = 0;
 
-        float legPhaseOffsets[Servo::LEGS] = {0.0f, 0.5f, 0.75f, 0.25f};
+        float legPhaseOffsets[Servos::LEGS] = {0.5f, 0.0f, 0.25f, 0.75f};
     };
 }
 
