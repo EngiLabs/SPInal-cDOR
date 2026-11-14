@@ -17,14 +17,19 @@ namespace Pin {
 
     constexpr uint8_t BATTERY_ADC  = A6;
 
-    // Multiservo Shield pin mapping
-    // Leg order: 0=LF, 1=RF, 2=LB, 3=RB
-    constexpr uint8_t SERVO_PINS[4][3] = {
-        { 0,  1,  2 },   // Front-Left:  Phi=0, Alpha=1, Beta=2
-        { 3,  4,  5 },   // Front-Right: Phi=3, Alpha=4, Beta=5
-        { 6,  7,  8 },   // Rear-Left:   Phi=6, Alpha=7, Beta=8
-        { 9, 10, 11 }    // Rear-Right:  Phi=9, Alpha=10, Beta=11
-    };
+    constexpr uint8_t SERVO_PIN_RF_ALPHA = 2,
+                      SERVO_PIN_LF_ALPHA = 3,
+                      SERVO_PIN_RB_ALPHA = 4,
+                      SERVO_PIN_LB_ALPHA = 5;
+
+    constexpr uint8_t SERVO_SHIELD_RF_PHI  = 0,
+                      SERVO_SHIELD_RF_BETA = 1,
+                      SERVO_SHIELD_LF_PHI  = 2,
+                      SERVO_SHIELD_LF_BETA = 3,
+                      SERVO_SHIELD_RB_PHI  = 4,
+                      SERVO_SHIELD_RB_BETA = 5,
+                      SERVO_SHIELD_LB_PHI  = 6,
+                      SERVO_SHIELD_LB_BETA = 7;
 }
 
 namespace Kinematics {
@@ -45,7 +50,7 @@ namespace Kinematics {
     constexpr float HOME_Y = -55.0f;
 }
 
-namespace Servo {
+namespace Servos {
     constexpr uint8_t COUNT       = 12,
                       LEGS        = 4,
                       DOF_PER_LEG = 3;
@@ -57,10 +62,10 @@ namespace Servo {
     };
 
     enum Leg : uint8_t {
-        LEG_LF = 0,
-        LEG_RF = 1,
-        LEG_LB = 2,
-        LEG_RB = 3
+        LEG_RF = 0,
+        LEG_LF = 1,
+        LEG_RB = 2,
+        LEG_LB = 3
     };
 
     constexpr int ALPHA_ZERO = 96,
@@ -78,6 +83,49 @@ namespace Servo {
                   BETA_SERVO_MAX  = 168,
                   PHI_SERVO_MIN   = 0,
                   PHI_SERVO_MAX   = 180;
+
+    struct Calibration {
+        int zero;
+        int dir;
+        int minAngle;
+        int maxAngle;
+    };
+
+    constexpr Calibration
+    DEFAULT_ALPHA = {
+        .zero     = ALPHA_ZERO,
+        .dir      = ALPHA_DIR,
+        .minAngle = ALPHA_SERVO_MIN,
+        .maxAngle = ALPHA_SERVO_MAX
+    },
+    DEFAULT_BETA = {
+        .zero     = BETA_ZERO,
+        .dir      = BETA_DIR,
+        .minAngle = BETA_SERVO_MIN,
+        .maxAngle = BETA_SERVO_MAX
+    },
+    DEFAULT_PHI = {
+        .zero     = PHI_ZERO,
+        .dir      = PHI_DIR,
+        .minAngle = PHI_SERVO_MIN,
+        .maxAngle = PHI_SERVO_MAX
+    };
+
+    constexpr Calibration CALIB_RF_ALPHA = DEFAULT_ALPHA;
+    constexpr Calibration CALIB_RF_BETA  = DEFAULT_BETA;
+    constexpr Calibration CALIB_RF_PHI   = DEFAULT_PHI;
+
+    constexpr Calibration CALIB_LF_ALPHA = DEFAULT_ALPHA;
+    constexpr Calibration CALIB_LF_BETA  = DEFAULT_BETA;
+    constexpr Calibration CALIB_LF_PHI   = DEFAULT_PHI;
+
+    constexpr Calibration CALIB_RB_ALPHA = DEFAULT_ALPHA;
+    constexpr Calibration CALIB_RB_BETA  = DEFAULT_BETA;
+    constexpr Calibration CALIB_RB_PHI   = DEFAULT_PHI;
+
+    constexpr Calibration CALIB_LB_ALPHA = DEFAULT_ALPHA;
+    constexpr Calibration CALIB_LB_BETA  = DEFAULT_BETA;
+    constexpr Calibration CALIB_LB_PHI   = DEFAULT_PHI;
 }
 
 namespace Protocol {
