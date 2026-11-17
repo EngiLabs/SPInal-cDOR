@@ -39,7 +39,7 @@ namespace Kinematics {
     // Угловые пределы
     constexpr float C_MIN     = -0.70710678f,                           // -1/sqrt2 (cos 135 deg)
                     ALPHA_MIN = -45.0f * 3.14159265f / 180.0f,          // -45 deg (#hip_lower_limit = 45 deg)
-                    ALPHA_MAX =  30.0f * 3.14159265f / 180.0f,          // +30 deg (#hip_upper_limit = 30 deg)
+                    ALPHA_MAX =  45.0f * 3.14159265f / 180.0f,          // +45 deg (расширено с 30 для отработки подъема LIFT_HEIGHT=40мм)
                     BETA_MIN  =  0.0f,
                     BETA_MAX  =  3.0f * 3.14159265f / 4.0f,             // 3pi/4 (135 deg)
                     PHI_MIN   = -3.14159265f / 3.0f,                    // -pi/3 (-60 deg)
@@ -164,6 +164,9 @@ namespace Gait {
         TROT  = 1,
         CREEP = 2
     };
+    constexpr float CYCLE_LENGTH_TICK = 50.0f,
+                    LIFT_HEIGHT       = 40.f,  // мм
+                    MAX_STRIDE        = 80.f;  // мм
 }
 
 namespace Imu {

@@ -5,11 +5,6 @@
 
 #include <math.h>
 
-namespace {
-    constexpr float CYCLE_LENGTH_TICK = 50.0f,
-                    LIFT_HEIGHT       = 30.f, // мм
-                    MAX_STRIDE        = 60.f; // мм
-}
 
 
 GaitController::GaitController::GaitController(ServoDriver::Driver &driver)
@@ -68,7 +63,7 @@ void GaitController::GaitController::tick() {
     if (!active) return;
 
     tickCounter++;
-    const float phase = fmod(static_cast<float>(tickCounter) / CYCLE_LENGTH_TICK, 1.0f);
+    const float phase = fmod(static_cast<float>(tickCounter) / Gait::CYCLE_LENGTH_TICK, 1.0f);
 
     for (uint8_t leg = 0; leg < Servos::LEGS; leg++) {
         const float legPhase = fmod(phase + legPhaseOffsets[leg], 1.0f);
@@ -76,7 +71,7 @@ void GaitController::GaitController::tick() {
         FootPosition foot{};
         kinematicsGetHomePosition(foot);
 
-        const float stride = static_cast<float>(currentSpeed) / 255.0f * MAX_STRIDE;
+        const float stride = static_cast<float>(currentSpeed) / 255.0f * Gait::MAX_STRIDE;
 
         float legDir = 0.0f;
         const bool isRightLeg = leg == Servos::LEG_RF || leg == Servos::LEG_RB;
@@ -89,7 +84,7 @@ void GaitController::GaitController::tick() {
         if (legPhase < swingRatio) { // перенос
             const float swingPhase = legPhase / swingRatio;
             foot.x += stride * (swingPhase - 0.5f) * legDir;
-            foot.y += LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
+            foot.y += Gait::LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
         }
         else { // опора
             const float stancePhase = (legPhase - swingRatio) / (1.0f - swingRatio);
