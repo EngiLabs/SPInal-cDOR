@@ -13,7 +13,7 @@ static unsigned long last_suboperation_tick = 0;
 static bool telemetryRequested = false;
 
 static ServoDriver::Driver servoDriver;
-static GaitController::GaitController gaitController;
+static GaitController::GaitController gaitController(servoDriver);
 
 static void handleCommand(const Frame &frame) {
     switch (frame.commandID) {
