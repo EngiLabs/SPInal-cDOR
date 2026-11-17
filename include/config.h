@@ -15,7 +15,7 @@ namespace Pin {
                       MAX7219_CLK  = 13,
                       MAX7219_CS   = 10;
 
-    constexpr uint8_t BATTERY_ADC  = A6;
+    constexpr uint8_t BATTERY_ADC  = A0;
 
     constexpr uint8_t SERVO_PIN_RF_ALPHA = 2,
                       SERVO_PIN_LF_ALPHA = 3,
@@ -33,16 +33,17 @@ namespace Pin {
 }
 
 namespace Kinematics {
-    constexpr float L1 = 60.0f,   // длина бедра (мм)
-                    L2 = 90.0f;   // длина голени (мм)
+    constexpr float L1 = 70.0f, // #hip_length = 70 mm
+                    L2 = 70.0f; // #shin_length = 70 mm
 
-    constexpr float C_MIN     = -0.70710678f,               // -1/sqrt2
-                    ALPHA_MIN = -3.14159265f / 2.0f,        // -pi/2
-                    ALPHA_MAX =  3.14159265f / 2.0f,        //  pi/2
+    // Угловые пределы
+    constexpr float C_MIN     = -0.70710678f,                           // -1/sqrt2 (cos 135 deg)
+                    ALPHA_MIN = -45.0f * 3.14159265f / 180.0f,          // -45 deg (#hip_lower_limit = 45 deg)
+                    ALPHA_MAX =  30.0f * 3.14159265f / 180.0f,          // +30 deg (#hip_upper_limit = 30 deg)
                     BETA_MIN  =  0.0f,
-                    BETA_MAX  =  3.0f * 3.14159265f / 4.0f, // 3pi/4
-                    PHI_MIN   = -3.14159265f / 3.0f,        // -pi/3
-                    PHI_MAX   =  3.14159265f / 3.0f,        //  pi/3
+                    BETA_MAX  =  3.0f * 3.14159265f / 4.0f,             // 3pi/4 (135 deg)
+                    PHI_MIN   = -3.14159265f / 3.0f,                    // -pi/3 (-60 deg)
+                    PHI_MAX   =  3.14159265f / 3.0f,                    //  pi/3 (+60 deg)
                     EPS       = 1e-4f;
 
     // опорная точка стойки (мм)
@@ -117,7 +118,12 @@ namespace Servos {
 
     constexpr Calibration CALIB_LF_ALPHA = DEFAULT_ALPHA;
     constexpr Calibration CALIB_LF_BETA  = DEFAULT_BETA;
-    constexpr Calibration CALIB_LF_PHI   = DEFAULT_PHI;
+    constexpr Calibration CALIB_LF_PHI   = {
+        .zero     = PHI_ZERO,
+        .dir      = -PHI_DIR,
+        .minAngle = PHI_SERVO_MIN,
+        .maxAngle = PHI_SERVO_MAX
+    };
 
     constexpr Calibration CALIB_RB_ALPHA = DEFAULT_ALPHA;
     constexpr Calibration CALIB_RB_BETA  = DEFAULT_BETA;
@@ -125,7 +131,12 @@ namespace Servos {
 
     constexpr Calibration CALIB_LB_ALPHA = DEFAULT_ALPHA;
     constexpr Calibration CALIB_LB_BETA  = DEFAULT_BETA;
-    constexpr Calibration CALIB_LB_PHI   = DEFAULT_PHI;
+    constexpr Calibration CALIB_LB_PHI   = {
+        .zero     = PHI_ZERO,
+        .dir      = -PHI_DIR,
+        .minAngle = PHI_SERVO_MIN,
+        .maxAngle = PHI_SERVO_MAX
+    };
 }
 
 namespace Protocol {

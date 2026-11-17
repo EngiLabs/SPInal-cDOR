@@ -5,31 +5,49 @@
 
 #include <math.h>
 
-
-GaitController::GaitController::GaitController() {
-    active = false;
-    tickCounter = 0;
+namespace {
+    constexpr float CYCLE_LENGTH_TICK = 50.0f,
+                    LIFT_HEIGHT       = 30.f, // мм
+                    MAX_STRIDE        = 60.f; // мм
 }
 
-void GaitController::GaitController::setType(uint8_t type) {
+
+GaitController::GaitController::GaitController(ServoDriver::Driver &driver)
+    : servoDriver(driver),
+      currentDirection(0),
+      currentSpeed(0),
+      active(false),
+      tickCounter(0),
+      swingRatio(0.25f)
+{
+    setType(Gait::WALK);
+}
+
+void GaitController::GaitController::setType(const uint8_t type) {
     switch (static_cast<Gait::Type>(type)) {
-        case Gait::WALK:
-            legPhaseOffsets[Servos::LEG_LF] = 0.0f;
-            legPhaseOffsets[Servos::LEG_RB] = 0.25f;
-            legPhaseOffsets[Servos::LEG_RF] = 0.5f;
-            legPhaseOffsets[Servos::LEG_LB] = 0.75f;
-            break;
         case Gait::TROT:
+            swingRatio = 0.5f;
             legPhaseOffsets[Servos::LEG_LF] = 0.0f;
             legPhaseOffsets[Servos::LEG_RB] = 0.0f;
             legPhaseOffsets[Servos::LEG_RF] = 0.5f;
             legPhaseOffsets[Servos::LEG_LB] = 0.5f;
             break;
+
         case Gait::CREEP:
+            swingRatio = 0.25f;
             legPhaseOffsets[Servos::LEG_LF] = 0.0f;
             legPhaseOffsets[Servos::LEG_RF] = 0.25f;
             legPhaseOffsets[Servos::LEG_LB] = 0.5f;
             legPhaseOffsets[Servos::LEG_RB] = 0.75f;
+            break;
+
+        case Gait::WALK:
+        default:
+            swingRatio = 0.25f;
+            legPhaseOffsets[Servos::LEG_RB] = 0.0f;
+            legPhaseOffsets[Servos::LEG_RF] = 0.25f;
+            legPhaseOffsets[Servos::LEG_LB] = 0.5f;
+            legPhaseOffsets[Servos::LEG_LF] = 0.75f;
             break;
     }
 }
@@ -50,8 +68,7 @@ void GaitController::GaitController::tick() {
     if (!active) return;
 
     tickCounter++;
-    constexpr float cycleLength = 50.0f;
-    const float phase = fmod(static_cast<float>(tickCounter) / cycleLength, 1.0f);
+    const float phase = fmod(static_cast<float>(tickCounter) / CYCLE_LENGTH_TICK, 1.0f);
 
     for (uint8_t leg = 0; leg < Servos::LEGS; leg++) {
         const float legPhase = fmod(phase + legPhaseOffsets[leg], 1.0f);
@@ -59,21 +76,36 @@ void GaitController::GaitController::tick() {
         FootPosition foot{};
         kinematicsGetHomePosition(foot);
 
-        const float stride = static_cast<float>(currentSpeed) / 255.0f * 30.0f;
+        const float stride = static_cast<float>(currentSpeed) / 255.0f * MAX_STRIDE;
 
-        if (legPhase < 0.5f) {
-            const float swingPhase = legPhase * 2.0f;
-            foot.z += stride * (swingPhase - 0.5f) * static_cast<float>(currentDirection);
-            foot.y += 20.0f * sin(swingPhase * 3.14159265f);
+        float legDir = 0.0f;
+        const bool isRightLeg = leg == Servos::LEG_RF || leg == Servos::LEG_RB;
+
+        if      (currentDirection == 1)  legDir = 1.f;
+        else if (currentDirection == -1) legDir = -1.f;
+        else if (currentDirection == 2)  legDir = isRightLeg ?  1.f : -1.f;
+        else if (currentDirection == 3)  legDir = isRightLeg ? -1.f :  1.f;
+
+        if (legPhase < swingRatio) { // перенос
+            const float swingPhase = legPhase / swingRatio;
+            foot.x += stride * (swingPhase - 0.5f) * legDir;
+            foot.y += LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
         }
-        else {
-            const float stancePhase = (legPhase - 0.5f) * 2.0f;
-            foot.z += stride * (0.5f - stancePhase) * static_cast<float>(currentDirection);
+        else { // опора
+            const float stancePhase = (legPhase - swingRatio) / (1.0f - swingRatio);
+            foot.x += stride * (0.5f - stancePhase) * legDir;
+            foot.y = Kinematics::HOME_Y;
         }
+
+        constexpr float r2 = Kinematics::HOME_R * Kinematics::HOME_R;
+        const float x2 = foot.x * foot.x;
+        if (r2 > x2) foot.z = sqrt(r2 - x2);
+        else foot.z = Kinematics::HOME_R;
 
         LegAngles angles{};
-        if (inverseKinematics(foot, angles) == IkStatus::OK)
+        if (inverseKinematics(foot, angles) == IkStatus::OK) {
             servoDriver.setLegAngles(leg, angles);
+        }
     }
 }
 
