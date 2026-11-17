@@ -7,6 +7,19 @@
 #include "relaxable_servo.h"
 
 namespace ServoDriver {
+    struct LegServos {
+        RelaxableShieldServo phi, beta;
+        RelaxableStandardServo alpha;
+
+        Servos::Calibration calibPhi{},
+                            calibAlpha{},
+                            calibBeta{};
+
+        bool writeAngles(float phiRad, float alphaRad, float betaRad);
+        void relax();
+        void wake();
+    };
+
     class Driver {
     public:
         Driver();
@@ -24,8 +37,26 @@ namespace ServoDriver {
         void wakeAll();
 
         void home();
-    protected:
-        RelaxableServo servos[Servo::LEGS][Servo::DOF_PER_LEG]{};
+
+        LegServos* getLeg(uint8_t legIndex);
+
+        LegServos RF;
+        LegServos LF;
+        LegServos RB;
+        LegServos LB;
+
+        RelaxableStandardServo &RF_alpha;
+        RelaxableShieldServo   &RF_beta;
+        RelaxableShieldServo   &RF_phi;
+        RelaxableStandardServo &LF_alpha;
+        RelaxableShieldServo   &LF_beta;
+        RelaxableShieldServo   &LF_phi;
+        RelaxableStandardServo &RB_alpha;
+        RelaxableShieldServo   &RB_beta;
+        RelaxableShieldServo   &RB_phi;
+        RelaxableStandardServo &LB_alpha;
+        RelaxableShieldServo   &LB_beta;
+        RelaxableShieldServo   &LB_phi;
     };
 }
 
