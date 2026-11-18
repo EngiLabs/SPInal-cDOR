@@ -9,7 +9,7 @@
 namespace ServoDriver {
     struct LegServos {
         RelaxableShieldServo phi, beta;
-        RelaxableStandardServo alpha;
+        RelaxableShieldServo alpha;
 
         Servos::Calibration calibPhi{},
                             calibAlpha{},
@@ -45,16 +45,16 @@ namespace ServoDriver {
         LegServos RB;
         LegServos LB;
 
-        RelaxableStandardServo &RF_alpha;
+        RelaxableShieldServo &RF_alpha;
         RelaxableShieldServo   &RF_beta;
         RelaxableShieldServo   &RF_phi;
-        RelaxableStandardServo &LF_alpha;
+        RelaxableShieldServo &LF_alpha;
         RelaxableShieldServo   &LF_beta;
         RelaxableShieldServo   &LF_phi;
-        RelaxableStandardServo &RB_alpha;
+        RelaxableShieldServo &RB_alpha;
         RelaxableShieldServo   &RB_beta;
         RelaxableShieldServo   &RB_phi;
-        RelaxableStandardServo &LB_alpha;
+        RelaxableShieldServo &LB_alpha;
         RelaxableShieldServo   &LB_beta;
         RelaxableShieldServo   &LB_phi;
     };
