@@ -4,7 +4,7 @@
 
 
 static int to_servo_angle(const float rad, const int zero, const int direction) {
-    return zero + direction * static_cast<int>(lround(rad * 180.0f / 3.14159265f));
+    return zero + direction * static_cast<int>(lround(rad * 180.0f / Kinematics::PI));
 }
 
 static bool in_range(const int val, const int lo, const int hi) {
@@ -61,19 +61,19 @@ ServoDriver::Driver::Driver()
     LB.calibBeta  = Servos::CALIB_LB_BETA;
     LB.calibPhi   = Servos::CALIB_LB_PHI;
 
-    RF_alpha.attach(Pin::SERVO_PIN_RF_ALPHA);
-    LF_alpha.attach(Pin::SERVO_PIN_LF_ALPHA);
-    RB_alpha.attach(Pin::SERVO_PIN_RB_ALPHA);
-    LB_alpha.attach(Pin::SERVO_PIN_LB_ALPHA);
+    RF_alpha.attach(Pin::SERVO_RF_ALPHA);
+    LF_alpha.attach(Pin::SERVO_LF_ALPHA);
+    RB_alpha.attach(Pin::SERVO_RB_ALPHA);
+    LB_alpha.attach(Pin::SERVO_LB_ALPHA);
 
-    RF_phi.attach(Pin::SERVO_SHIELD_RF_PHI);
-    RF_beta.attach(Pin::SERVO_SHIELD_RF_BETA);
-    LF_phi.attach(Pin::SERVO_SHIELD_LF_PHI);
-    LF_beta.attach(Pin::SERVO_SHIELD_LF_BETA);
-    RB_phi.attach(Pin::SERVO_SHIELD_RB_PHI);
-    RB_beta.attach(Pin::SERVO_SHIELD_RB_BETA);
-    LB_phi.attach(Pin::SERVO_SHIELD_LB_PHI);
-    LB_beta.attach(Pin::SERVO_SHIELD_LB_BETA);
+    RF_phi.attach( Pin::SERVO_RF_PHI);
+    RF_beta.attach(Pin::SERVO_RF_BETA);
+    LF_phi.attach( Pin::SERVO_LF_PHI);
+    LF_beta.attach(Pin::SERVO_LF_BETA);
+    RB_phi.attach( Pin::SERVO_RB_PHI);
+    RB_beta.attach(Pin::SERVO_RB_BETA);
+    LB_phi.attach( Pin::SERVO_LB_PHI);
+    LB_beta.attach(Pin::SERVO_LB_BETA);
 }
 
 ServoDriver::LegServos* ServoDriver::Driver::getLeg(const uint8_t legIndex) {
@@ -113,9 +113,9 @@ void ServoDriver::Driver::setAllAngles(const float angles[12]) {
     // RF = 0, LF = 1, RB = 2, LB = 3; phi = 0, alpha = 1, beta = 2
     for (uint8_t leg = 0; leg < Servos::LEGS; leg++)
         setLegAngles(leg, {
-            .phi   = angles[leg * 3 + 0] * 3.14159265f / 180.0f,
-            .alpha = angles[leg * 3 + 1] * 3.14159265f / 180.0f,
-            .beta  = angles[leg * 3 + 2] * 3.14159265f / 180.0f
+            .phi   = angles[leg * 3 + 0] * Kinematics::PI / 180.0f,
+            .alpha = angles[leg * 3 + 1] * Kinematics::PI / 180.0f,
+            .beta  = angles[leg * 3 + 2] * Kinematics::PI / 180.0f
         });
 }
 
