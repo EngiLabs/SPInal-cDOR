@@ -15,8 +15,6 @@ namespace Pin {
                       MAX7219_CLK  = 13,
                       MAX7219_CS   = 10;
 
-    constexpr uint8_t BATTERY_ADC  = A0;
-
     constexpr uint8_t SERVO_RF_ALPHA = 7,
                       SERVO_RF_PHI   = 9,
                       SERVO_RF_BETA  = 11;

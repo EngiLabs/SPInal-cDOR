@@ -80,9 +80,7 @@ static void sendTelemetry() {
     imuRead(imu);
     irSensorsRead(ir);
 
-    const uint16_t batteryRaw = analogRead(Pin::BATTERY_ADC);
-
-    uint8_t payload[27];
+    uint8_t payload[26];
     memcpy(payload + 0,  &imu.accelX, 4);
     memcpy(payload + 4,  &imu.accelY, 4);
     memcpy(payload + 8,  &imu.accelZ, 4);
@@ -92,9 +90,7 @@ static void sendTelemetry() {
     payload[24] = (ir.LF >> 8) & 0xFF;
     payload[25] = ir.LF & 0xFF;
 
-    payload[26] = (batteryRaw >> 8) & 0xFF;
-
-    protocolSend(Protocol::REQUEST_TELEMETRY, payload, 27);
+    protocolSend(Protocol::REQUEST_TELEMETRY, payload, 26);
 }
 
 
