@@ -34,11 +34,13 @@ static void handleCommand(const Frame &frame) {
             break;
 
         case Protocol::SET_POSE: {
-            float angles[Servos::COUNT];
-            for (uint8_t i = 0; i < Servos::COUNT && i * 2 + 1 < frame.length; i++)
-                angles[i] = static_cast<float>(
-                    (frame.payload[i * 2] << 8) | frame.payload[i * 2 + 1]
-                ) / 100.0f;
+            float angles[Servos::COUNT] = {};
+            for (uint8_t i = 0; i < Servos::COUNT && i * 2 + 1 < frame.length; i++) {
+                const auto raw = static_cast<int16_t>(
+                    (static_cast<uint16_t>(frame.payload[i * 2]) << 8) | frame.payload[i * 2 + 1]
+                );
+                angles[i] = static_cast<float>(raw) / 100.0f;
+            }
             servoDriver.setAllAngles(angles);
             break;
         }
