@@ -72,30 +72,50 @@ void GaitController::GaitController::tick() {
         kinematicsGetHomePosition(foot);
 
         const float stride = static_cast<float>(currentSpeed) / 255.0f * Gait::MAX_STRIDE;
-
-        float legDir = 0.0f;
         const bool isRightLeg = leg == Servos::LEG_RF || leg == Servos::LEG_RB;
+        const bool isStrafe = currentDirection == 4 || currentDirection == 5;
 
-        if      (currentDirection == 1)  legDir = 1.f;
-        else if (currentDirection == -1) legDir = -1.f;
-        else if (currentDirection == 2)  legDir = isRightLeg ?  1.f : -1.f;
-        else if (currentDirection == 3)  legDir = isRightLeg ? -1.f :  1.f;
+        if (isStrafe) {
+            const float strafeDir = currentDirection == 4
+                ? (isRightLeg ? -1.0f :  1.0f)
+                : (isRightLeg ?  1.0f : -1.0f);
+            const float strafeStride = stride * 0.5f;
 
-        if (legPhase < swingRatio) { // перенос
-            const float swingPhase = legPhase / swingRatio;
-            foot.x += stride * (swingPhase - 0.5f) * legDir;
-            foot.y += Gait::LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
+            foot.x = 0.0f;
+            if (legPhase < swingRatio) { // перенос
+                const float swingPhase = legPhase / swingRatio;
+                foot.z = Kinematics::HOME_R + strafeStride * (swingPhase - 0.5f) * strafeDir;
+                foot.y += Gait::LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
+            }
+            else { // опора
+                const float stancePhase = (legPhase - swingRatio) / (1.0f - swingRatio);
+                foot.z = Kinematics::HOME_R + strafeStride * (0.5f - stancePhase) * strafeDir;
+                foot.y = Kinematics::HOME_Y;
+            }
         }
-        else { // опора
-            const float stancePhase = (legPhase - swingRatio) / (1.0f - swingRatio);
-            foot.x += stride * (0.5f - stancePhase) * legDir;
-            foot.y = Kinematics::HOME_Y;
-        }
+        else {
+            float legDir = 0.0f;
+            if      (currentDirection == 1)  legDir = 1.f;
+            else if (currentDirection == -1) legDir = -1.f;
+            else if (currentDirection == 2)  legDir = isRightLeg ?  1.f : -1.f;
+            else if (currentDirection == 3)  legDir = isRightLeg ? -1.f :  1.f;
 
-        constexpr float r2 = Kinematics::HOME_R * Kinematics::HOME_R;
-        const float x2 = foot.x * foot.x;
-        if (r2 > x2) foot.z = sqrt(r2 - x2);
-        else foot.z = Kinematics::HOME_R;
+            if (legPhase < swingRatio) { // перенос
+                const float swingPhase = legPhase / swingRatio;
+                foot.x += stride * (swingPhase - 0.5f) * legDir;
+                foot.y += Gait::LIFT_HEIGHT * sin(swingPhase * 3.14159265f);
+            }
+            else { // опора
+                const float stancePhase = (legPhase - swingRatio) / (1.0f - swingRatio);
+                foot.x += stride * (0.5f - stancePhase) * legDir;
+                foot.y = Kinematics::HOME_Y;
+            }
+
+            constexpr float r2 = Kinematics::HOME_R * Kinematics::HOME_R;
+            const float x2 = foot.x * foot.x;
+            if (r2 > x2) foot.z = sqrt(r2 - x2);
+            else foot.z = Kinematics::HOME_R;
+        }
 
         LegAngles angles{};
         if (inverseKinematics(foot, angles) == IkStatus::OK) {
