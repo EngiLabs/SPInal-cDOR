@@ -18,6 +18,7 @@ static GaitController::GaitController gaitController(servoDriver);
 static void handleCommand(const Frame &frame) {
     switch (frame.commandID) {
         case Protocol::MOVE: {
+            if (frame.length < 2) break;
             const auto direction = static_cast<int8_t>(frame.payload[0]);
             const uint8_t speed = frame.payload[1];
             gaitController.setDirection(direction, speed);
@@ -30,12 +31,15 @@ static void handleCommand(const Frame &frame) {
             break;
 
         case Protocol::SET_GAIT:
+            if (frame.length < 1) break;
             gaitController.setType(frame.payload[0]);
             break;
 
         case Protocol::SET_POSE: {
+            if (frame.length < Servos::COUNT * 2) break;
+            gaitController.stop();
             float angles[Servos::COUNT] = {};
-            for (uint8_t i = 0; i < Servos::COUNT && i * 2 + 1 < frame.length; i++) {
+            for (uint8_t i = 0; i < Servos::COUNT; i++) {
                 const auto raw = static_cast<int16_t>(
                     (static_cast<uint16_t>(frame.payload[i * 2]) << 8) | frame.payload[i * 2 + 1]
                 );
